@@ -98,6 +98,7 @@ def body_word_count(sections: dict[str, list[str]]) -> int:
         "2. Background and Motivation",
         "3. Proposed Methodology",
         "4. Expected Outcomes",
+        "AI Use Declaration",
     ):
         selected.extend(sections[name])
     text = " ".join(selected).replace("`", "")
@@ -248,6 +249,20 @@ def build() -> None:
     )
     styles.add(
         ParagraphStyle(
+            name="Declaration",
+            parent=styles["BodyCustom"],
+            fontSize=8.7,
+            leading=12.2,
+            backColor=LIGHT_TEAL,
+            borderColor=TEAL,
+            borderWidth=0.7,
+            borderPadding=7,
+            spaceBefore=1 * mm,
+            spaceAfter=2 * mm,
+        )
+    )
+    styles.add(
+        ParagraphStyle(
             name="Caption",
             parent=styles["BodyText"],
             fontName="Helvetica-Oblique",
@@ -345,7 +360,10 @@ def build() -> None:
     for text in paragraphs(sections["4. Expected Outcomes"]):
         story.append(Paragraph(inline_markup(text), styles["BodyCustom"]))
 
-    story.append(PageBreak())
+    story.append(Paragraph("AI Use Declaration", styles["SectionCustom"]))
+    for text in paragraphs(sections["AI Use Declaration"]):
+        story.append(Paragraph(inline_markup(text), styles["Declaration"]))
+
     story.append(Paragraph("5. Timeline (Weeks 1-13)", styles["SectionCustom"]))
     timeline_lines = [line for line in sections["5. Timeline (Weeks 1-13)"] if line.startswith("|")]
     timeline_data = []
@@ -416,7 +434,7 @@ def build() -> None:
     )
     spectrogram_path = ROOT / "results" / "spectrograms.png"
     if spectrogram_path.exists():
-        image = Image(str(spectrogram_path), width=122 * mm, height=85.4 * mm)
+        image = Image(str(spectrogram_path), width=93 * mm, height=65 * mm)
         image.hAlign = "CENTER"
         story.append(KeepTogether([image, Paragraph("Figure 2. Synthetic clean, noisy, and enhanced spectrograms used for pipeline verification.", styles["Caption"])]))
 

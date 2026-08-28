@@ -36,6 +36,10 @@ Performance will be measured with input and output SNR, SNR improvement, segment
 
 The principal outcome will be a working command-line prototype that reads a WAV file, estimates noise from a nominated noise-only segment, writes enhanced audio, and exposes the main algorithm parameters. The repository will include unit tests, a reproducible demonstration, sample outputs, metric summaries, and clear instructions. I expect the method to improve SNR for stationary and slowly varying noise while using modest computation. Performance is expected to decline for rapidly changing noise or inaccurate noise-only estimates; this limitation will be measured rather than hidden. The final comparison should identify parameter ranges that reduce noise without excessive speech attenuation and explain the remaining musical-noise trade-off.
 
+## AI Use Declaration
+
+Generative AI tools (OpenAI ChatGPT and Codex) were used to assist with project planning, organising the literature search, drafting, Python implementation, debugging, documentation, and document formatting. I reviewed and revised all AI-assisted material, verified the references against publication sources, executed the code and tests, and checked the reported outputs. I remain responsible for the accuracy and integrity of the final submission. The preliminary 5.73 dB SNR improvement was produced by the deterministic local experiment in this repository; it is not an AI-generated result or a claim about real-speech performance.
+
 ## 5. Timeline (Weeks 1-13)
 
 | Week | Task |

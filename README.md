@@ -56,6 +56,6 @@ The final study will evaluate white and coloured noise at input SNRs from -5 dB 
 
 After publishing, confirm that the repository is public and that GitHub Pages is deployed from the `main` branch.
 
-## Academic integrity
+## AI use declaration
 
-The code, experiment settings, generated outputs, and AI assistance should be reviewed and understood by the student before submission. Cite all reused data and third-party code according to course policy.
+Generative AI tools (OpenAI ChatGPT and Codex) were used to assist with project planning, organising the literature search, drafting, Python implementation, debugging, documentation, and document formatting. I reviewed and revised all AI-assisted material, verified the references against publication sources, executed the code and tests, and checked the reported outputs. I remain responsible for the accuracy and integrity of the final submission. The preliminary 5.73 dB SNR improvement was produced by the deterministic local experiment in this repository; it is not an AI-generated result or a claim about real-speech performance.
