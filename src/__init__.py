@@ -1,0 +1,2 @@
+"""Spectral-subtraction project package."""
+

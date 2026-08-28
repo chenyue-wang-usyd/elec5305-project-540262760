@@ -1,0 +1,10 @@
+{
+  "sample_rate_hz": 16000,
+  "input_snr_db": 0.094,
+  "output_snr_db": 5.827,
+  "snr_improvement_db": 5.733,
+  "alpha": 2.0,
+  "beta": 0.02,
+  "noise_duration_s": 0.5,
+  "gain_smoothing_frames": 3
+}

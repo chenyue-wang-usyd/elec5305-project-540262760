@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="ELEC5305 project: single-channel audio noise reduction using spectral subtraction.">
+  <title>Audio Noise Reduction | ELEC5305</title>
+  <style>
+    :root { --navy:#17324d; --teal:#168c8c; --ink:#17212b; --muted:#607080; --pale:#eef4f8; --line:#d8e0e6; }
+    * { box-sizing: border-box; }
+    body { margin:0; color:var(--ink); font-family:Inter,Segoe UI,Arial,sans-serif; background:#f7fafb; line-height:1.6; }
+    header { color:white; background:linear-gradient(135deg,var(--navy),#245675 62%,var(--teal)); padding:72px 24px 64px; }
+    header div, main { width:min(1040px,calc(100% - 40px)); margin:auto; }
+    .eyebrow { margin:0 0 8px; font-weight:700; letter-spacing:.13em; text-transform:uppercase; opacity:.8; }
+    h1 { max-width:820px; margin:0; font-size:clamp(2.2rem,5vw,4.6rem); line-height:1.04; letter-spacing:-.035em; }
+    .lede { max-width:760px; margin:22px 0 28px; font-size:1.15rem; opacity:.92; }
+    .actions { display:flex; flex-wrap:wrap; gap:12px; }
+    .button { display:inline-block; padding:11px 17px; border-radius:8px; background:white; color:var(--navy); font-weight:700; text-decoration:none; }
+    .button.alt { background:transparent; color:white; border:1px solid rgba(255,255,255,.5); }
+    main { padding:48px 0 72px; }
+    h2 { color:var(--navy); margin-top:42px; font-size:1.7rem; }
+    .grid { display:grid; grid-template-columns:repeat(3,1fr); gap:18px; }
+    .card { padding:22px; background:white; border:1px solid var(--line); border-radius:12px; box-shadow:0 8px 26px rgba(23,50,77,.06); }
+    .card strong { display:block; color:var(--teal); font-size:1.8rem; }
+    .pipeline { display:grid; grid-template-columns:repeat(6,1fr); gap:10px; align-items:center; }
+    .pipeline span { position:relative; min-height:76px; display:grid; place-items:center; padding:10px; text-align:center; font-weight:700; border-radius:10px; color:var(--navy); background:var(--pale); border:1px solid var(--line); }
+    .pipeline span:not(:last-child)::after { content:'>'; position:absolute; right:-10px; color:var(--teal); transform:translateX(50%); }
+    figure { margin:24px 0; padding:18px; background:white; border:1px solid var(--line); border-radius:12px; }
+    figure img { display:block; width:100%; height:auto; }
+    figcaption { color:var(--muted); font-size:.9rem; margin-top:10px; }
+    footer { padding:24px; text-align:center; color:var(--muted); border-top:1px solid var(--line); background:white; }
+    code { color:var(--navy); background:var(--pale); padding:.15em .35em; border-radius:4px; }
+    @media (max-width:760px) { .grid { grid-template-columns:1fr; } .pipeline { grid-template-columns:1fr 1fr; } .pipeline span::after { display:none; } }
+  </style>
+</head>
+<body>
+  <header>
+    <div>
+      <p class="eyebrow">ELEC5305 Project Proposal</p>
+      <h1>Audio Noise Reduction Using Spectral Subtraction</h1>
+      <p class="lede">A transparent single-channel speech-enhancement prototype built around STFT analysis, noise-power estimation, over-subtraction, spectral flooring, and overlap-add reconstruction.</p>
+      <div class="actions">
+        <a class="button" href="proposal/ELEC5305_Audio_Noise_Reduction_Proposal.pdf">Read the proposal</a>
+        <a class="button alt" href="results/demo_enhanced.wav">Listen to the enhanced demo</a>
+      </div>
+    </div>
+  </header>
+  <main>
+    <section class="grid" aria-label="Preliminary metrics">
+      <div class="card"><strong>0.09 dB</strong> synthetic input SNR</div>
+      <div class="card"><strong>5.83 dB</strong> synthetic output SNR</div>
+      <div class="card"><strong>+5.73 dB</strong> preliminary SNR improvement</div>
+    </section>
+
+    <h2>Signal-processing pipeline</h2>
+    <div class="pipeline" aria-label="Processing stages">
+      <span>Noisy WAV</span><span>STFT</span><span>Noise PSD</span><span>Subtract + floor</span><span>iSTFT</span><span>Enhanced WAV</span>
+    </div>
+
+    <h2>What the project evaluates</h2>
+    <p>The study will vary input SNR, noise type, the over-subtraction factor <code>alpha</code>, the spectral floor <code>beta</code>, and gain smoothing. Evaluation will combine SNR-based measures, runtime, spectrograms, audio examples, and optional STOI/PESQ measures. The current figures are a deterministic synthetic proof of concept, not a final real-speech result.</p>
+
+    <figure>
+      <img src="results/spectrograms.png" alt="Clean, noisy and enhanced spectrograms from the deterministic demo">
+      <figcaption>Synthetic pipeline verification: coloured stationary noise is reduced while the speech-like harmonic structure remains visible.</figcaption>
+    </figure>
+
+    <h2>Reproduce the demo</h2>
+    <p>Install the Python requirements, then run <code>python scripts/run_demo.py</code>. The repository records parameters, generated WAV files, figures, and objective metrics under <code>results/</code>.</p>
+  </main>
+  <footer>Student: Chenyue Wang &middot; SID: 540262760 &middot; GitHub: chenyue-wang-usyd</footer>
+</body>
+</html>
