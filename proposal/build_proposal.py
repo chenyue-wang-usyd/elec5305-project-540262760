@@ -158,9 +158,9 @@ def header_footer(canvas, doc) -> None:
 
 def build() -> None:
     title, sections = parse_markdown()
-    word_count = body_word_count(sections)
+    word_count = len(SOURCE.read_text(encoding="utf-8").split())
     if not 700 <= word_count <= 1000:
-        raise ValueError(f"Main-body word count {word_count} is outside 700-1000")
+        raise ValueError(f"Complete source word count {word_count} is outside 700-1000")
 
     styles = getSampleStyleSheet()
     styles.add(
@@ -309,7 +309,7 @@ def build() -> None:
         )
     student_rows.append(
         [
-            Paragraph("Main-body word count", styles["SmallCustom"]),
+            Paragraph("Source word count (all sections)", styles["SmallCustom"]),
             Paragraph(str(word_count), styles["SmallCustom"]),
         ]
     )
@@ -440,7 +440,7 @@ def build() -> None:
 
     doc.build(story, onFirstPage=header_footer, onLaterPages=header_footer)
     print(f"Built {OUTPUT}")
-    print(f"Main-body word count: {word_count}")
+    print(f"Complete source word count: {word_count}")
 
 
 if __name__ == "__main__":

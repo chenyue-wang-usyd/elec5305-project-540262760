@@ -11,6 +11,7 @@ ELEC5305 project proposal and reproducible Python prototype for single-channel a
 - `tests/test_spectral_subtraction.py` - automated correctness and performance checks
 - `results/` - generated WAV files, figures, and metrics
 - `index.html` - GitHub Pages project summary
+- `WALKTHROUGH.md` - English explanation of the algorithm, results, and remaining work
 
 ## Quick start
 
@@ -58,4 +59,4 @@ After publishing, confirm that the repository is public and that GitHub Pages is
 
 ## AI use declaration
 
-Generative AI tools (OpenAI ChatGPT and Codex) were used to assist with project planning, organising the literature search, drafting, Python implementation, debugging, documentation, and document formatting. I reviewed and revised all AI-assisted material, verified the references against publication sources, executed the code and tests, and checked the reported outputs. I remain responsible for the accuracy and integrity of the final submission. The preliminary 5.73 dB SNR improvement was produced by the deterministic local experiment in this repository; it is not an AI-generated result or a claim about real-speech performance.
+OpenAI ChatGPT and Codex assisted with drafting, implementation, debugging, reference checks, and formatting. Synthetic metrics are computed by the supplied code. The student remains responsible for reviewing the material and complying with course requirements before submission. The preliminary 5.73 dB SNR improvement comes from a deterministic synthetic experiment; it does not establish real-speech performance.

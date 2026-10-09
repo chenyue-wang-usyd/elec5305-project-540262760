@@ -5,10 +5,19 @@ import unittest
 import numpy as np
 
 from scripts.run_demo import make_demo, snr_db
-from src.spectral_subtraction import spectral_subtract
+from src.spectral_subtraction import _to_float_mono, spectral_subtract
 
 
 class SpectralSubtractionTests(unittest.TestCase):
+    def test_stereo_pcm_matches_normalized_float(self) -> None:
+        pcm = np.array([[16384, 0], [-16384, 0], [32767, -32768]], dtype=np.int16)
+        expected = (pcm.astype(np.float64) / 32768.0).mean(axis=1)
+        np.testing.assert_allclose(_to_float_mono(pcm), expected)
+
+    def test_unsigned_pcm_silence_is_zero(self) -> None:
+        pcm = np.array([0, 128, 255], dtype=np.uint8)
+        np.testing.assert_allclose(_to_float_mono(pcm), [-1.0, 0.0, 127.0 / 128.0])
+
     def test_preserves_length_and_finite_values(self) -> None:
         rng = np.random.default_rng(1)
         signal = rng.normal(size=8000)
@@ -34,4 +43,3 @@ class SpectralSubtractionTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
-

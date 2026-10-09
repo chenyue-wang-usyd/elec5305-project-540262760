@@ -1,4 +1,4 @@
-# Single-Channel Audio Noise Reduction Using Adaptive Spectral Subtraction
+# Single-Channel Audio Noise Reduction Using Spectral Subtraction
 
 ## Student Information
 
@@ -10,55 +10,48 @@
 
 ## 1. Project Overview
 
-Everyday recordings made by phones, headsets, and embedded microphones are often corrupted by fan, traffic, or room noise. This reduces listening comfort and can also degrade speech communication and automatic speech recognition. This project will design and evaluate a single-channel noise-reduction system based on spectral subtraction. The method is attractive for a semester project because it is interpretable, computationally light, and can operate without paired training data. A noisy waveform will be divided into overlapping short-time frames, transformed to the frequency domain, and reduced by an estimated noise spectrum before reconstruction. The project will deliver a tested Python prototype, reproducible experiments, objective results, audio examples, and a documented GitHub Pages demonstration.
+Recordings from phones and headsets often contain fan, traffic, or room noise, reducing listening comfort and potentially disrupting speech communication. This project will investigate single-channel audio enhancement using spectral subtraction. It will estimate background noise, attenuate contaminated frequency components, and reconstruct an enhanced waveform. Unlike a trained neural network, this approach requires no paired training dataset and exposes each processing stage for inspection. The deliverables are a reproducible Python prototype, comparative experiments, audio examples, and a documented GitHub demonstration. The central question is how subtraction strength and smoothing balance noise reduction against speech distortion.
 
 ## 2. Background and Motivation
 
-For additive noise, the observation can be modelled as y[n] = s[n] + d[n], where s[n] is clean speech and d[n] is noise. Boll's classical algorithm estimates the noise magnitude during non-speech intervals and subtracts it from each short-time speech spectrum [1]. It is efficient, but imperfect noise estimates can leave isolated time-frequency peaks known as musical noise. Straight subtraction can also remove weak speech components. These limitations create a useful engineering trade-off: stronger subtraction improves noise attenuation, while conservative subtraction better preserves speech.
+The observation is modelled as y[n] = s[n] + d[n], where s is clean speech and d is additive noise. Boll's classical method estimates a noise spectrum during non-speech intervals and subtracts it from the observed spectrum [1]. Errors can leave isolated spectral peaks, heard as musical noise, or remove weak speech components. Over-subtraction and spectral flooring offer practical controls over this trade-off.
 
-Later work introduced over-subtraction and a spectral floor to control residual noise and speech distortion. Minimum-statistics noise tracking can follow changing noise without relying entirely on a voice-activity detector [2]. Multi-band subtraction further recognises that coloured noise affects frequency regions unequally [3]. Objective measures do not always agree with perceived quality, so a credible evaluation should combine signal measures with spectrograms and listening evidence [4]. I chose this topic because it connects core ELEC5305 concepts - sampling, windowing, the discrete Fourier transform, power spectra, filtering, and overlap-add reconstruction - in a system whose intermediate signals can be inspected and explained.
+Martin's minimum-statistics estimator motivates a possible extension for changing noise [2]; it is not implemented in the current prototype. Hu and Loizou show why objective measures should be interpreted alongside perceived quality [3]. This topic connects windowing, Fourier analysis, power estimation, and reconstruction in a feasible semester project. Its limited complexity also makes failures easier to diagnose than those of a large learned model.
 
 ## 3. Proposed Methodology
 
-The prototype will be implemented in Python using NumPy and SciPy for numerical signal processing, Matplotlib for figures, and standard WAV input/output. Mono audio will be normalised and segmented with a 32 ms Hann window and 8 ms hop. The short-time Fourier transform (STFT) produces Y(k,m), where k is frequency bin and m is frame index. An initial noise-only interval will provide the baseline noise power estimate. An optional minimum-statistics-style update will be investigated for slowly varying noise.
+Python, NumPy, SciPy, and Matplotlib will support processing, WAV input/output, and visualisation. Integer audio will be converted to floating point before averaging channels. The baseline uses a 32 ms Hann window and an 8 ms hop. The short-time Fourier transform (STFT) provides a spectrum Y(k,m) for frequency bin k and frame m. Its power is averaged over an initial 0.5-second noise-only region to estimate D. This assumes a known noise-only introduction and approximately stationary noise.
 
-For each time-frequency bin, the enhanced power will be computed as
+The target enhanced power is
 
-`|S_hat(k,m)|^2 = max(|Y(k,m)|^2 - alpha |D_hat(k,m)|^2, beta |D_hat(k,m)|^2)`.
+`P_target = max(|Y|^2 - alpha |D|^2, beta |D|^2)`.
 
-Here alpha is the over-subtraction factor and beta is the spectral-floor coefficient. The corresponding gain will be smoothed across adjacent frames to reduce rapid isolated changes. The enhanced magnitude will be combined with the original noisy phase, then converted to the time domain by inverse STFT and overlap-add. Peak protection will prevent clipping. A transparent baseline with alpha = 1 and no gain smoothing will be compared against practical variants using alpha from 1.0 to 3.0, beta from 0.005 to 0.05, and one to five smoothing frames.
+Here alpha controls over-subtraction and beta sets a residual-noise floor. A gain derived from this power is capped at one to avoid amplification and smoothed over neighbouring frames. Multiplication by the complex noisy spectrum retains its phase. Inverse STFT and overlap-add reconstruct the waveform; output peak scaling prevents clipping. The floor is therefore a target before gain clipping and smoothing, not a guaranteed final power bound.
 
-Experiments will use clean speech mixed with reproducible white, low-frequency, and real recorded noises at input SNRs of -5, 0, 5, 10, and 15 dB. The initial implementation includes a deterministic speech-like synthetic signal so that the complete pipeline can be tested without downloading a dataset. The main evaluation will use appropriately licensed speech/noise material, such as the NOIZEUS corpus described by Hu and Loizou [4], with source and licence documented. Files will be split by utterance so the same samples are not used to tune and report parameters.
+A baseline with alpha = 1 and no smoothing will be compared with alpha values from 1 to 3, beta values from 0.005 to 0.05, and smoothing lengths from one to five frames. A fixed-seed synthetic signal already supports pipeline checks. Subsequent experiments will use appropriately licensed speech and noise, with NOIZEUS considered as a candidate corpus [3]. Dataset terms and provenance will be recorded before use. Utterances will be separated for tuning and final evaluation.
 
-Performance will be measured with input and output SNR, SNR improvement, segmental SNR, and processing time. Where compatible implementations are available, STOI and PESQ will supplement these measures. Waveform and spectrogram comparisons will show whether noise is removed uniformly or replaced by musical artefacts. A small informal listening comparison will record which parameter setting best balances residual noise and speech distortion. Scripts will fix random seeds, save parameters with results, and generate tables and figures automatically.
+White, coloured, and recorded noise will be evaluated at input SNRs of -5, 0, 5, 10, and 15 dB. Noise mixtures will be calibrated over the scored speech region. Measurements will include input/output SNR, segmental SNR, and runtime, supplemented by spectrograms and listening comparisons. STOI or PESQ may be added if compatible implementations are available. Fixed seeds, saved parameters, and automatic figures will make results reproducible. Experiments will also examine failures when speech contaminates the noise estimate or background noise changes.
 
 ## 4. Expected Outcomes
 
-The principal outcome will be a working command-line prototype that reads a WAV file, estimates noise from a nominated noise-only segment, writes enhanced audio, and exposes the main algorithm parameters. The repository will include unit tests, a reproducible demonstration, sample outputs, metric summaries, and clear instructions. I expect the method to improve SNR for stationary and slowly varying noise while using modest computation. Performance is expected to decline for rapidly changing noise or inaccurate noise-only estimates; this limitation will be measured rather than hidden. The final comparison should identify parameter ranges that reduce noise without excessive speech attenuation and explain the remaining musical-noise trade-off.
+The prototype will provide a WAV command-line interface, parameter controls, tests, generated examples, and clear documentation. The study should identify useful settings for stationary noise and quantify their distortion cost. Stronger subtraction is not assumed to improve every recording. Rapidly changing noise, inaccurate initial estimates, and retained noisy phase remain limitations. Current synthetic results demonstrate execution only; real-speech quality, intelligibility, and generalisation have not yet been established.
 
 ## AI Use Declaration
 
-Generative AI tools (OpenAI ChatGPT and Codex) were used to assist with project planning, organising the literature search, drafting, Python implementation, debugging, documentation, and document formatting. I reviewed and revised all AI-assisted material, verified the references against publication sources, executed the code and tests, and checked the reported outputs. I remain responsible for the accuracy and integrity of the final submission. The preliminary 5.73 dB SNR improvement was produced by the deterministic local experiment in this repository; it is not an AI-generated result or a claim about real-speech performance.
+OpenAI ChatGPT and Codex assisted with drafting, implementation, debugging, reference checks, and formatting. Synthetic metrics are computed by the supplied code. The student remains responsible for reviewing the material and complying with course requirements before submission.
 
 ## 5. Timeline (Weeks 1-13)
 
 | Week | Task |
 |---|---|
-| 1-2 | Confirm scope, success criteria, repository structure, and topic. |
-| 3-5 | Review literature; select licensed speech/noise data; define metrics and baseline. |
-| 6-7 | Implement WAV handling, STFT/ISTFT pipeline, noise estimation, and classical subtraction. |
-| 8-9 | Add over-subtraction, spectral flooring, gain smoothing, tests, and automated plots. |
-| 10-11 | Run parameter/noise/SNR experiments; analyse artefacts, runtime, and limitations. |
-| 12 | Complete the report, audio examples, README, and GitHub Pages demonstration. |
-| 13 | Reproduce all results from a clean environment; proofread and submit. |
+| 1-2 | Confirm topic and scope. |
+| 3-5 | Review literature and dataset terms. |
+| 6-9 | Implement, test, and compare variants. |
+| 10-11 | Evaluate parameters, quality, and runtime. |
+| 12-13 | Complete report, documentation, and reproduction checks. |
 
 ## 6. References
 
-1. S. F. Boll, "Suppression of Acoustic Noise in Speech Using Spectral Subtraction," *IEEE Transactions on Acoustics, Speech, and Signal Processing*, vol. 27, no. 2, pp. 113-120, 1979. doi:10.1109/TASSP.1979.1163209.
-2. R. Martin, "Noise Power Spectral Density Estimation Based on Optimal Smoothing and Minimum Statistics," *IEEE Transactions on Speech and Audio Processing*, vol. 9, no. 5, pp. 504-512, 2001. doi:10.1109/89.928915.
-3. S. D. Kamath and P. C. Loizou, "A Multi-Band Spectral Subtraction Method for Enhancing Speech Corrupted by Colored Noise," *Proceedings of ICASSP*, pp. IV-4160-IV-4164, 2002.
-4. Y. Hu and P. C. Loizou, "Evaluation of Objective Measures for Speech Enhancement," *Proceedings of Interspeech*, pp. 1447-1450, 2006. doi:10.21437/Interspeech.2006-84.
-
-## Appendix: Proposed Signal Flow
-
-`Noisy WAV -> framing and Hann window -> STFT -> noise PSD estimate -> over-subtraction and floor -> gain smoothing -> noisy phase + enhanced magnitude -> inverse STFT/overlap-add -> enhanced WAV and metrics`
+1. S. F. Boll, "Suppression of Acoustic Noise in Speech Using Spectral Subtraction," *IEEE TASSP*, 27(2), 113-120, 1979. doi:10.1109/TASSP.1979.1163209.
+2. R. Martin, "Noise Power Spectral Density Estimation Based on Optimal Smoothing and Minimum Statistics," *IEEE TSAP*, 9(5), 504-512, 2001. doi:10.1109/89.928915.
+3. Y. Hu and P. C. Loizou, "Evaluation of Objective Measures for Speech Enhancement," *Interspeech*, 2006. doi:10.21437/Interspeech.2006-84.

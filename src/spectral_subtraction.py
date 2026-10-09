@@ -14,15 +14,20 @@ from scipy.signal import istft, stft
 def _to_float_mono(samples: np.ndarray) -> np.ndarray:
     """Convert integer/float mono or stereo audio to finite float64 mono audio."""
     audio = np.asarray(samples)
-    if audio.ndim == 2:
-        audio = audio.mean(axis=1)
-    if audio.ndim != 1:
+    if audio.ndim not in (1, 2):
         raise ValueError("Audio must be mono or two-dimensional multichannel data")
     if np.issubdtype(audio.dtype, np.integer):
-        limit = max(abs(np.iinfo(audio.dtype).min), np.iinfo(audio.dtype).max)
-        audio = audio.astype(np.float64) / float(limit)
+        info = np.iinfo(audio.dtype)
+        if info.min == 0:
+            midpoint = (float(info.max) + 1.0) / 2.0
+            audio = (audio.astype(np.float64) - midpoint) / midpoint
+        else:
+            limit = max(abs(info.min), info.max)
+            audio = audio.astype(np.float64) / float(limit)
     else:
         audio = audio.astype(np.float64)
+    if audio.ndim == 2:
+        audio = audio.mean(axis=1)
     if not np.all(np.isfinite(audio)):
         raise ValueError("Audio contains NaN or infinite values")
     return audio
@@ -156,4 +161,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-
