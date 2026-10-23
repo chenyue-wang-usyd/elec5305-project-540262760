@@ -1,9 +1,9 @@
-name: Princess Fury Android UTF-16 test APK
+name: Princess Fury Android stretched widescreen APK
 
 on:
   push:
     branches:
-      - princess-fury-touchhle-fix
+      - princess-fury-widescreen
   workflow_dispatch:
 
 permissions:
@@ -44,9 +44,33 @@ jobs:
           before = 'applicationId = "org.touchhle.android"'
           if g.count(before) != 1:
               raise SystemExit('Unexpected Android app ID')
-          g = g.replace(before, 'applicationId = "org.touchhle.android.princessfury"')
+          g = g.replace(before, 'applicationId = "org.touchhle.android.princessfurywide"')
           gradle.write_text(g, encoding='utf-8')
           print('Patched NSUnicodeStringEncoding (10) and changed applicationId.')
+          # Experimental only: stretch the iPad landscape viewport over the
+          # entire Android drawable surface. Input touch conversion uses the
+          # same viewport(), so virtual button coordinates stay aligned.
+          window_file = root / 'src/window.rs'
+          w = window_file.read_text(encoding='utf-8')
+          anchor = '    pub fn viewport(&self) -> (u32, u32, u32, u32) {'
+          replacement = '''    pub fn viewport(&self) -> (u32, u32, u32, u32) {
+        // Princess Fury Android widescreen: fill the entire landscape
+        // drawable by stretching the iPad framebuffer (not cropping).
+        if Self::rotatable_fullscreen()
+            && self.device_family == DeviceFamily::iPad
+            && matches!(
+                self.device_orientation,
+                DeviceOrientation::LandscapeLeft | DeviceOrientation::LandscapeRight
+            )
+        {
+            let (screen_width, screen_height) = self.window.drawable_size();
+            return (0, 0, screen_width, screen_height);
+        }
+'''
+          if w.count(anchor) != 1:
+              raise SystemExit('touchHLE window viewport implementation changed')
+          window_file.write_text(w.replace(anchor, replacement), encoding='utf-8')
+          print('Patched widescreen iPad viewport and touch-coordinate mapping.')
           PY
 
       - name: Download build dependencies
@@ -89,11 +113,11 @@ jobs:
           CMAKE: ${{ github.workspace }}/touchHLE-src/vendor/cmake/bin/cmake
         run: |
           ../gradle/gradle-8.11.1/bin/gradle assembleRelease --no-daemon
-          cp app/build/outputs/apk/release/app-release.apk ../../PrincessFury_touchHLE_hotfix.apk
+          cp app/build/outputs/apk/release/app-release.apk ../../PrincessFury_touchHLE_widescreen.apk
 
       - name: Upload APK for download
         uses: actions/upload-artifact@v4
         with:
-          name: PrincessFury-touchHLE-Android-APK
-          path: PrincessFury_touchHLE_hotfix.apk
+          name: PrincessFury-touchHLE-Widescreen-Android-APK
+          path: PrincessFury_touchHLE_widescreen.apk
           retention-days: 30
