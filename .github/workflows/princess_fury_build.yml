@@ -1,0 +1,93 @@
+name: Princess Fury Android UTF-16 test APK
+
+on:
+  push:
+    branches:
+      - princess-fury-touchhle-fix
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-android:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 90
+    steps:
+      - name: Checkout isolated build branch
+        uses: actions/checkout@v4
+
+      - name: Clone upstream touchHLE source
+        run: |
+          git clone --recurse-submodules https://github.com/touchHLE/touchHLE.git touchHLE-src
+
+      - name: Apply Princess Fury experimental UTF-16 fix
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          root = Path('touchHLE-src')
+          f = root / 'src/frameworks/foundation/ns_string.rs'
+          txt = f.read_text(encoding='utf-8')
+          replacements = [
+              ('NSUTF16LittleEndianStringEncoding => string.encode_utf16().flat_map(u16::to_le_bytes).collect(),',
+               'NSUnicodeStringEncoding | NSUTF16LittleEndianStringEncoding => string.encode_utf16().flat_map(u16::to_le_bytes).collect(),'),
+              ('NSUTF16LittleEndianStringEncoding => 2,',
+               'NSUnicodeStringEncoding | NSUTF16LittleEndianStringEncoding => 2,'),
+          ]
+          for before, after in replacements:
+              if txt.count(before) != 1:
+                  raise SystemExit(f'Unexpected source code, cannot patch: {before}')
+              txt = txt.replace(before, after)
+          f.write_text(txt, encoding='utf-8')
+          gradle = root / 'android/app/build.gradle.kts'
+          g = gradle.read_text(encoding='utf-8')
+          before = 'applicationId = "org.touchhle.android"'
+          if g.count(before) != 1:
+              raise SystemExit('Unexpected Android app ID')
+          g = g.replace(before, 'applicationId = "org.touchhle.android.princessfury"')
+          gradle.write_text(g, encoding='utf-8')
+          print('Patched NSUnicodeStringEncoding (10) and changed applicationId.')
+          PY
+
+      - name: Download build dependencies
+        working-directory: touchHLE-src
+        run: |
+          mkdir -p vendor gradle android-ndk
+          curl --fail --location --retry 3 -o boost.7z https://archives.boost.io/release/1.81.0/source/boost_1_81_0.7z
+          7z x boost.7z -ovendor -y
+          mv vendor/boost_1_81_0 vendor/boost
+          curl --fail --location --retry 3 -o cmake.tar.gz https://github.com/Kitware/CMake/releases/download/v3.31.6/cmake-3.31.6-linux-x86_64.tar.gz
+          tar xzf cmake.tar.gz -C vendor
+          mv vendor/cmake-3.31.6-linux-x86_64 vendor/cmake
+          curl --fail --location --retry 3 -o gradle.zip https://services.gradle.org/distributions/gradle-8.11.1-bin.zip
+          7z x gradle.zip -ogradle -y
+          curl --fail --location --retry 3 -o ndk.zip https://dl.google.com/android/repository/android-ndk-r25c-linux.zip
+          7z x ndk.zip -oandroid-ndk -y
+          mkdir -p "$ANDROID_SDK_ROOT/ndk"
+          if [ ! -e "$ANDROID_SDK_ROOT/ndk/25.2.9519653" ]; then
+            ln -s "$GITHUB_WORKSPACE/touchHLE-src/android-ndk/android-ndk-r25c" "$ANDROID_SDK_ROOT/ndk/25.2.9519653"
+          fi
+          echo "sdk.dir=$ANDROID_SDK_ROOT" > android/local.properties
+
+      - name: Install Rust Android toolchain
+        run: |
+          rustup target add aarch64-linux-android
+          cargo install cargo-ndk@3.5.4
+
+      - name: Build patched touchHLE APK
+        working-directory: touchHLE-src/android
+        env:
+          ANDROID_NDK_ROOT: /usr/local/lib/android/sdk/ndk/25.2.9519653
+          ANDROID_NDK: /usr/local/lib/android/sdk/ndk/25.2.9519653
+          ANDROID_NDK_HOME: /usr/local/lib/android/sdk/ndk/25.2.9519653
+          CMAKE: ${{ github.workspace }}/touchHLE-src/vendor/cmake/bin/cmake
+        run: |
+          ../gradle/gradle-8.11.1/bin/gradle assembleRelease --no-daemon
+          cp app/build/outputs/apk/release/app-release.apk ../../PrincessFury_touchHLE_hotfix.apk
+
+      - name: Upload APK for download
+        uses: actions/upload-artifact@v4
+        with:
+          name: PrincessFury-touchHLE-Android-APK
+          path: PrincessFury_touchHLE_hotfix.apk
+          retention-days: 30
