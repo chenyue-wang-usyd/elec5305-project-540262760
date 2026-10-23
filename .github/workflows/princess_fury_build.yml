@@ -74,6 +74,12 @@ jobs:
           rustup target add aarch64-linux-android
           cargo install cargo-ndk@3.5.4
 
+      - name: Set up Java 17 for Android Gradle Plugin
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
       - name: Build patched touchHLE APK
         working-directory: touchHLE-src/android
         env:
