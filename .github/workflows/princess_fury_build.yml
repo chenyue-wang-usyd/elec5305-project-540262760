@@ -53,20 +53,22 @@ jobs:
           window_file = root / 'src/window.rs'
           w = window_file.read_text(encoding='utf-8')
           anchor = '    pub fn viewport(&self) -> (u32, u32, u32, u32) {'
-          replacement = '''    pub fn viewport(&self) -> (u32, u32, u32, u32) {
-        // Princess Fury Android widescreen: fill the entire landscape
-        // drawable by stretching the iPad framebuffer (not cropping).
-        if Self::rotatable_fullscreen()
-            && self.device_family == DeviceFamily::iPad
-            && matches!(
-                self.device_orientation,
-                DeviceOrientation::LandscapeLeft | DeviceOrientation::LandscapeRight
-            )
-        {
-            let (screen_width, screen_height) = self.window.drawable_size();
-            return (0, 0, screen_width, screen_height);
-        }
-'''
+          replacement_lines = [
+              '    pub fn viewport(&self) -> (u32, u32, u32, u32) {',
+              '        // Princess Fury Android: stretch iPad framebuffer without cropping.',
+              '        // viewport() is also used for touch coordinate mapping.',
+              '        if Self::rotatable_fullscreen()',
+              '            && self.device_family == DeviceFamily::iPad',
+              '            && matches!(',
+              '                self.device_orientation,',
+              '                DeviceOrientation::LandscapeLeft | DeviceOrientation::LandscapeRight',
+              '            )',
+              '        {',
+              '            let (screen_width, screen_height) = self.window.drawable_size();',
+              '            return (0, 0, screen_width, screen_height);',
+              '        }',
+          ]
+          replacement = chr(10).join(replacement_lines) + chr(10)
           if w.count(anchor) != 1:
               raise SystemExit('touchHLE window viewport implementation changed')
           window_file.write_text(w.replace(anchor, replacement), encoding='utf-8')
