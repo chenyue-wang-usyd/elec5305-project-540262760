@@ -2,6 +2,17 @@
 
 ELEC5305 project proposal and reproducible Python prototype for single-channel audio noise reduction. The system estimates a noise spectrum from an initial noise-only segment, applies power spectral subtraction with over-subtraction and spectral flooring, then reconstructs the signal with the noisy phase.
 
+## Audio Processing Report 2
+
+**Extracting a Musical Foreground from Stereo Ambience** - an English MATLAB report applying Week 6 overlap-add processing and Week 8 stereo decomposition.
+
+- [Download the complete submission ZIP](reports/report2/Report2%20ChenyueWang.zip)
+- [Read the report PDF](reports/report2/Report2%20ChenyueWang/Report2%20ChenyueWang.pdf)
+- [Open the MATLAB Live Script](reports/report2/Report2%20ChenyueWang/Report2%20ChenyueWang.mlx)
+- [Reproduction instructions and source files](reports/report2/Report2%20ChenyueWang/README.md)
+
+Validated in MATLAB R2026a. All 45 trials and the audio outputs reproduced exactly after extracting the final ZIP into a separate folder. The report includes references and an AI use declaration.
+
 ## Repository contents
 
 - `proposal/ELEC5305_Audio_Noise_Reduction_Proposal.pdf` - submission-ready proposal draft

@@ -1,3 +1,6 @@
 *.pdf -text -diff
 *.png -text -diff
 *.wav -text -diff
+*.mlx -text -diff
+*.mat -text -diff
+*.zip -text -diff
