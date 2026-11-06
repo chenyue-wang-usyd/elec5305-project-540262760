@@ -2,6 +2,25 @@
 
 ELEC5305 project proposal and reproducible Python prototype for single-channel audio noise reduction. The system estimates a noise spectrum from an initial noise-only segment, applies power spectral subtraction with over-subtraction and spectral flooring, then reconstructs the signal with the noisy phase.
 
+## Final project
+
+- [Project page, report, demonstration and audio samples](final/index.html)
+- [Research report (PDF)](final/ELEC5305_Final_Project_Report.pdf)
+- [Video demonstration (MP4)](final/demo.mp4)
+- [Trial-level results](final/results/heldout_trials.csv) and [parameter grid](final/results/development_grid.csv)
+
+The final evaluation uses 16 distinct speakers from the official [Mini LibriSpeech dev-clean-2 archive](https://openslr.org/31/) (CC BY 4.0). Four speakers are used to select the parameters, and twelve different speakers are used only for the held-out evaluation. Download the archive, then run:
+
+```bash
+pip install -r requirements.txt
+python scripts/evaluate_final.py dev-clean-2.tar.gz --recorded-noise path/to/tram.wav
+python -m unittest discover -s tests -v
+```
+
+Use the ELEC5305 Week 4 tram.wav for the fourth condition. Omit the flag if you do not have the course recording. The reproducible synthetic-noise conditions use deterministic seeds and are otherwise unaffected. The course recording is not redistributed. The held-out CSV includes timings that vary with the machine. The website audio excerpt is truncated and level-adjusted, with added noise or enhancement as indicated. The report includes an AI use declaration, and the demonstration uses synthetic narration.
+
+Rebuild the PDF with `pip install reportlab` and `python scripts/build_final_report.py`. Rebuild the narrated MP4 with `pip install edge-tts` and `python scripts/build_final_video.py` after regenerating the experiment outputs. The narration uses Andrew, a US English voice and requires an internet connection.
+
 ## Audio Processing Report 2
 
 **Extracting a Musical Foreground from Stereo Ambience** - an English MATLAB report applying Week 6 overlap-add processing and Week 8 stereo decomposition.
@@ -54,10 +73,6 @@ Important options:
 - `--beta`: spectral floor relative to estimated noise power; helps reduce musical noise
 - `--frame-ms` and `--hop-ms`: STFT frame and hop sizes
 - `--gain-smoothing`: number of frames used to smooth the gain over time
-
-## Evaluation plan
-
-The final study will evaluate white and coloured noise at input SNRs from -5 dB to 15 dB. Reported measures will include global SNR improvement, segmental SNR, optional STOI/PESQ when available, runtime, and spectrogram/listening comparisons. The classical method will be compared with over-subtraction, spectral flooring, and time-smoothed gain variants.
 
 ## Submission details
 

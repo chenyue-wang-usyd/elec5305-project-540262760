@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ELEC5305 | Speech enhancement with spectral subtraction</title>
+<style>
+:root{color-scheme:light;--ink:#14283c;--accent:#006c60;--line:#dbe5e8;--paper:#f2f7f8}
+*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.65 system-ui,sans-serif}
+main{max-width:1040px;margin:auto;padding:40px 22px 64px}
+header{background:#14283c;color:white;padding:36px;border-radius:16px}
+header p:first-child{color:#98e6d9;font-size:.8rem;font-weight:700;letter-spacing:.12em}
+h1{font-size:clamp(2rem,5vw,3.3rem);line-height:1.05;margin:.35em 0}h2{line-height:1.2}
+section{padding:20px 26px;background:white;margin:18px 0;border:1px solid var(--line);border-radius:14px}
+a{color:var(--accent)}header a{color:#98e6d9}nav{display:flex;flex-wrap:wrap;gap:16px}
+img,video{width:100%;height:auto;border-radius:8px}video{background:#14283c}
+.samples{display:grid;grid-template-columns:repeat(auto-fit,minmax(245px,1fr));gap:14px}
+.samples div{padding:12px;background:var(--paper);border-radius:8px}audio{width:100%;display:block}
+code{overflow-wrap:anywhere}figcaption,small{color:#465b6e}
+</style>
+<main>
+<header>
+<p>ELEC5305 FINAL PROJECT</p>
+<h1>Speech enhancement with spectral subtraction</h1>
+<p>What changes when the gain rule is tuned for noise reduction? A speaker-disjoint comparison on 240 held-out mixtures.</p>
+<nav><a href="ELEC5305_Final_Project_Report.pdf">Research report (PDF)</a><a href="demo.mp4">Demo video (MP4)</a><a href="../scripts/evaluate_final.py">Evaluation code</a><a href="../src/spectral_subtraction.py">WAV processing code</a></nav>
+</header>
+<section>
+<h2>Held-out results</h2>
+<p>Mean SNR improvement was <strong>+2.41 dB</strong> for the baseline and <strong>+4.73 dB</strong> for the tuned method. At 10 and 15 dB in the tram condition, tuning performed slightly worse than the baseline.</p>
+<figure><img src="results/snr.png" alt="Four plots of SNR improvement by noise type and input SNR"><figcaption>Each point averages 12 held-out speakers. Positive values indicate lower waveform error after enhancement.</figcaption></figure>
+<p><a href="results/heldout_trials.csv">Trial data</a> · <a href="results/development_grid.csv">Development grid</a> · <a href="results/summary.json">Settings and summary</a></p>
+</section>
+<section>
+<h2>Demonstration</h2>
+<video controls preload="metadata" src="demo.mp4" aria-label="Narrated project demonstration"></video>
+<p>The narrated demonstration shows the actual WAV command output and plays the input and processed output at the same playback scaling. Narration is synthetic.</p>
+</section>
+<section>
+<h2>Listen to the same utterance four ways</h2>
+<p>Colored noise at 0 dB input SNR. The four files share a time axis and playback scaling.</p>
+<div class="samples">
+<div>Clean reference<audio controls preload="none" src="results/clean.wav" aria-label="Clean reference"></audio></div>
+<div>Noisy input<audio controls preload="none" src="results/noisy.wav" aria-label="Noisy input"></audio></div>
+<div>Baseline output<audio controls preload="none" src="results/baseline.wav" aria-label="Baseline output"></audio></div>
+<div>Tuned output<audio controls preload="none" src="results/tuned.wav" aria-label="Tuned output"></audio></div>
+</div>
+<p><small>Excerpt 1993-147964-0000, <a href="https://openslr.org/31/">Mini LibriSpeech SLR31</a> under <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>. Truncated and level-adjusted, with added noise or enhancement as labelled.</small></p>
+</section>
+<section>
+<h2>Run the experiment</h2>
+<p><a href="https://github.com/chenyue-wang-usyd/elec5305-project-540262760">GitHub repository and setup instructions</a></p>
+<p><code>python scripts/evaluate_final.py dev-clean-2.tar.gz --recorded-noise path/to/tram.wav</code></p>
+<p>Omit the optional course recording to run the three synthetic-noise conditions. The speech in all conditions comes from real recordings.</p>
+</section>
+</main>
+</html>

@@ -87,9 +87,10 @@ def spectral_subtract(
         padded=True,
     )
     power = np.abs(spectrum) ** 2
-    noise_frames = times <= noise_duration
+    frame_half_seconds = nperseg / (2 * sample_rate)
+    noise_frames = (times >= frame_half_seconds) & (times + frame_half_seconds <= noise_duration)
     if not np.any(noise_frames):
-        noise_frames[0] = True
+        noise_frames = times <= noise_duration
     noise_psd = np.mean(power[:, noise_frames], axis=1, keepdims=True)
 
     eps = np.finfo(np.float64).eps
